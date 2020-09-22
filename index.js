@@ -7,6 +7,25 @@ require('dotenv').config()
 const app = express()
 app.use(cors('*'))
 
+const parsetime = timelocal => {
+  const timezoneSplit = timelocal.split(' ');
+  const timezone = timezoneSplit[1]
+
+  const hoursDateSplit = timezoneSplit[0].split(':')
+  const dateToFormat = hoursDateSplit[0]
+  const hours = hoursDateSplit[1]
+  const minutes = hoursDateSplit[2]
+  const seconds = hoursDateSplit[3]
+
+  const dateSplit = dateToFormat.split('/')
+  const day = dateSplit[0]
+  const monthStr = dateSplit[1]
+  const year = dateSplit[2]
+  const month = new Date(monthStr+'-1-01').getMonth() + 1
+
+  return new Date(year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds)
+}
+
 const parseLine = line => {
   const rx = /[\"|\["].+?[\"|\]"]|[^ ]+/g
   const arr = []
@@ -32,6 +51,7 @@ const parseLine = line => {
     remoteAddress: arr[0],
     remoteUser: arr[2] === '-' ? null : arr[2],
     timeLocal,
+    dateTime: parsetime(timeLocal),
     request: stripsub(arr[4]),
     status: arr[5],
     bodyBytesSent: arr[6],
